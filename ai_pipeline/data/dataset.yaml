@@ -1,0 +1,11 @@
+# YOLOv8 format dataset config
+path: ../datasets/smart_helmet # dataset root dir
+train: images/train  # train images (relative to 'path')
+val: images/val      # val images (relative to 'path')
+
+# Classes
+names:
+  0: person
+  1: motorcycle
+  2: helmet
+  3: no_helmet

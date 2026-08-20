@@ -1,0 +1,5 @@
+# Duplicate Detection Configuration
+duplicate_cooldown_minutes: 60
+ocr_confidence_threshold: 0.90
+fuzzy_match_threshold: 0.95
+evidence_buffer_seconds: 10

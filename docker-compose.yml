@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: smarthelmet
+      POSTGRES_PASSWORD: smartpassword
+      POSTGRES_DB: smarthelmet_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://smarthelmet:smartpassword@db:5432/smarthelmet_db
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY} # Expecting this to be passed in env
+      - JWT_SECRET=supersecretkey
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+    restart: always
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    restart: always
+    # Vite dev server binding to all interfaces
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  postgres_data:
